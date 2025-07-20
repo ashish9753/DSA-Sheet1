@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DP Problem Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 min-h-screen transition-all duration-300">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                        Dynamic Programming Sheet
+                    </h1>
+                    <p class="text-gray-700 dark:text-gray-300 text-base">Master DP concepts step by step — <a href="https://www.linkedin.com/in/ashish2208/" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-2 py-1 rounded shadow transition">Ashish Sharma</a></p>
+                </div>
+                <!-- Dark Mode Toggle -->
+                <button 
+                    id="darkModeToggle"
+                    class="p-3 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700"
+                >
+                    <i class="fas fa-moon text-gray-600 dark:text-yellow-400 text-xl" id="darkModeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search and Stats -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-6 items-center justify-between">
+                <div class="relative flex-1 max-w-md">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search DP problems..." 
+                        class="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300"
+                    >
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"></i>
+                </div>
+                <div class="flex gap-4 text-sm">
+                    <div class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl shadow-lg">
+                        <i class="fas fa-check mr-2"></i>
+                        Completed: <span id="completedCount" class="font-semibold">0</span>
+                    </div>
+                    <div class="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl shadow-lg">
+                        <i class="fas fa-clock mr-2"></i>
+                        Remaining: <span id="remainingCount" class="font-semibold">0</span>
+                    </div>
+                    <div class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl shadow-lg">
+                        <i class="fas fa-list mr-2"></i>
+                        Total: <span id="totalCount" class="font-semibold">0</span>
+                    </div>
+                    <div class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-lg">
+                        <i class="fas fa-percentage mr-2"></i>
+                        <span id="progressPercentage">0%</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Progress Bar -->
+            <div class="mt-4">
+                <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <span>Overall Progress</span>
+                    <span id="progressText">0 / 0</span>
+                </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                    <div 
+                        id="progressBar" 
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500 ease-out"
+                        style="width: 0%"
+                    ></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Problem Sections -->
+        <div id="problemSections" class="space-y-6">
+            <!-- Sections will be populated here -->
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        let isDarkMode = localStorage.getItem('darkMode') === 'true' || false;
+        
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode);
+            updateTheme();
+        }
+
+        function updateTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('darkModeIcon');
+            
+            if (isDarkMode) {
+                html.classList.add('dark');
+                icon.className = 'fas fa-sun text-yellow-400 text-xl';
+            } else {
+                html.classList.remove('dark');
+                icon.className = 'fas fa-moon text-gray-600 text-xl';
+            }
+        }
+
+        // In-memory storage for problem completion status
+        let problemStatus = JSON.parse(localStorage.getItem('dpProblemStatus')) || {};
+        let allProblems = [];
+
+        // Problem data structure with platform links and resources
+        const problemData = {
+            "Day 1: Introduction to DP": [
+                { name: "Dynamic Programming Introduction", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" }
+            ],
+            "Day 2: 1D DP": [
+                { name: "Climbing Stars", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Frog Jump(DP-3)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Frog Jump with k distances(DP-4)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Maximum sum of non-adjacent elements (DP 5)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "House Robber (DP 6)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" }
+            ],
+            "Day 3: 2D/3D DP and DP on Grids": [
+                { name: "Ninja's Training (DP 7)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Grid Unique Paths : DP on Grids (DP8)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Grid Unique Paths 2 (DP 9)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Minimum path sum in Grid (DP 10)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Minimum path sum in Triangular Grid (DP 11)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Minimum/Maximum Falling Path Sum (DP-12)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "3-d DP : Ninja and his friends (DP-13)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" }
+            ],
+            "Day 4: DP on Subsequences": [
+                { name: "Subset sum equal to target (DP- 14)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Unbounded Knapsack (DP - 23)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Rod Cutting Problem | (DP - 24)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Partition Equal Subset Sum (DP- 15)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Partition Set Into 2 Subsets With Min Absolute Sum Diff (DP- 16)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Count Subsets with Sum K (DP - 17)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Count Partitions with Given Difference (DP - 18)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Assign Cookies", difficulty: "Hard", editorial: "editorial", postLink: "-", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Minimum Coins (DP - 20)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Target Sum (DP - 21)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Coin Change 2 (DP - 22)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" }
+            ],
+            "Day 5: DP on Strings": [
+                { name: "Longest Common Subsequence | (DP - 25)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Wildcard Matching | (DP-34)", difficulty: "Medium", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Print Longest Common Subsequence | (DP - 26)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Longest Common Substring | (DP - 27)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Longest Palindromic Subsequence | (DP-28)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Minimum insertions to make string palindrome | DP-29", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Minimum Insertions/Deletions to Convert String | (DP- 30)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Shortest Common Supersequence | (DP - 31)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Distinct Subsequences| (DP-32)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Edit Distance | (DP-33)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" }
+            ],
+            "Day 6: DP on Stocks": [
+                { name: "Best Time to Buy and Sell Stock |(DP-35)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Buy and Sell Stock - II|(DP-36)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Buy and Sell Stocks III|(DP-37)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Buy and Stock Sell IV |(DP-38)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Buy and Sell Stocks With Cooldown|(DP-39)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Buy and Sell Stocks With Transaction Fee|(DP-40)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" }
+            ],
+            "Day 7: DP on LIS": [
+                { name: "Longest Increasing Subsequence |(DP-41)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Printing Longest Increasing Subsequence|(DP-42)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Longest Increasing Subsequence |(DP-43)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Largest Divisible Subset|(DP-44)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Longest String Chain|(DP-45)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Longest Bitonic Subsequence |(DP-46)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Number of Longest Increasing Subsequences|(DP-47)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" }
+            ],
+            "Day 8: MCM DP | Partition DP": [
+                { name: "Matrix Chain Multiplication|(DP-48)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Matrix Chain Multiplication | Bottom-Up|(DP-49)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "-" },
+                { name: "Minimum Cost to Cut the Stick|(DP-50)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Burst Balloons|(DP-51)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Evaluate Boolean Expression to True|(DP-52)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Palindrome Partitioning - II|(DP-53)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Partition Array for Maximum Sum|(DP-54)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" }
+            ],
+            "Day 9: DP on Squares": [
+                { name: "Maximum Rectangle Area with all 1's|(DP-55)", difficulty: "Hard", editorial: "editorial", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" },
+                { name: "Count Square Submatrices with All Ones|(DP-56)", difficulty: "Hard", editorial: "-", postLink: "Post Link", youtubeLink: "YouTube Link", practice: "" }
+            ]
+        };
+
+        // Initialize problem list
+        function initializeProblems() {
+            allProblems = [];
+            Object.keys(problemData).forEach(section => {
+                problemData[section].forEach(problem => {
+                    allProblems.push({
+                        section: section,
+                        name: problem.name,
+                        difficulty: problem.difficulty,
+                        editorial: problem.editorial,
+                        postLink: problem.postLink,
+                        youtubeLink: problem.youtubeLink,
+                        practice: problem.practice,
+                        id: generateId(problem.name)
+                    });
+                });
+            });
+        }
+
+        // Generate unique ID for each problem
+        function generateId(name) {
+            return name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        }
+
+        // Get difficulty color
+        function getDifficultyColor(difficulty) {
+            switch(difficulty) {
+                case 'Easy': return 'bg-gradient-to-r from-green-500 to-emerald-500 text-white';
+                case 'Medium': return 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white';
+                case 'Hard': return 'bg-gradient-to-r from-red-500 to-pink-500 text-white';
+                default: return 'bg-gradient-to-r from-gray-500 to-gray-600 text-white';
+            }
+        }
+
+        // Get section gradient
+        function getSectionGradient(section) {
+            const gradients = [
+                'from-blue-500 to-purple-600',
+                'from-purple-500 to-pink-600',
+                'from-pink-500 to-rose-600',
+                'from-indigo-500 to-blue-600',
+                'from-cyan-500 to-teal-600',
+                'from-emerald-500 to-green-600',
+                'from-amber-500 to-orange-600',
+                'from-red-500 to-pink-600',
+                'from-violet-500 to-purple-600'
+            ];
+            const index = Object.keys(problemData).indexOf(section) % gradients.length;
+            return gradients[index];
+        }
+
+        // Generate resource links HTML
+        function generateResourceLinks(problem) {
+            let linksHtml = '';
+            
+            // Editorial link
+            if (problem.editorial && problem.editorial !== "-") {
+                linksHtml += `
+                    <a href="#" target="_blank" 
+                       class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                       title="Editorial">
+                        <i class="fas fa-book text-sm"></i>
+                    </a>
+                `;
+            }
+            
+            // Post link
+            if (problem.postLink && problem.postLink !== "-") {
+                linksHtml += `
+                    <a href="#" target="_blank" 
+                       class="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                       title="Blog Post">
+                        <i class="fas fa-blog text-sm"></i>
+                    </a>
+                `;
+            }
+            
+            // YouTube link
+            if (problem.youtubeLink && problem.youtubeLink !== "-") {
+                linksHtml += `
+                    <a href="#" target="_blank" 
+                       class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                       title="YouTube Video">
+                        <i class="fab fa-youtube text-sm"></i>
+                    </a>
+                `;
+            }
+            
+            // Practice link
+            if (problem.practice && problem.practice !== "-") {
+                linksHtml += `
+                    <a href="#" target="_blank" 
+                       class="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                       title="Practice">
+                        <i class="fas fa-code text-sm"></i>
+                    </a>
+                `;
+            }
+            
+            return linksHtml;
+        }
+
+        // Render problems
+        function renderProblems(problems = allProblems) {
+            const container = document.getElementById('problemSections');
+            container.innerHTML = '';
+
+            // Group problems by section
+            const groupedProblems = {};
+            problems.forEach(problem => {
+                if (!groupedProblems[problem.section]) {
+                    groupedProblems[problem.section] = [];
+                }
+                groupedProblems[problem.section].push(problem);
+            });
+
+            Object.keys(groupedProblems).forEach(section => {
+                const sectionProblems = groupedProblems[section];
+                const completedInSection = sectionProblems.filter(p => problemStatus[p.id]).length;
+                const remainingInSection = sectionProblems.length - completedInSection;
+                const sectionProgress = (completedInSection / sectionProblems.length) * 100;
+                
+                const sectionHtml = `
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-2xl transition-all duration-300">
+                        <div class="bg-gradient-to-r ${getSectionGradient(section)} text-white p-6">
+                            <div class="flex justify-between items-center mb-3">
+                                <h2 class="text-2xl font-bold">${section}</h2>
+                                <div class="text-right">
+                                    <div class="text-sm opacity-90">Progress</div>
+                                    <div class="text-lg font-semibold">${completedInSection} / ${sectionProblems.length}</div>
+                                    <div class="text-xs opacity-75">${remainingInSection} remaining</div>
+                                </div>
+                            </div>
+                            <div class="w-full bg-white/20 rounded-full h-2">
+                                <div 
+                                    class="bg-white h-2 rounded-full transition-all duration-500"
+                                    style="width: ${sectionProgress}%"
+                                ></div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-3">
+                                ${sectionProblems.map(problem => `
+                                    <div class="group flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600/50 transition-all duration-300 hover:shadow-lg">
+                                        <div class="flex items-center space-x-4 flex-1">
+                                            <label class="relative cursor-pointer">
+                                                <input 
+                                                    type="checkbox" 
+                                                    class="sr-only"
+                                                    ${problemStatus[problem.id] ? 'checked' : ''}
+                                                    onchange="toggleProblem('${problem.id}')"
+                                                >
+                                                <div class="w-6 h-6 bg-white dark:bg-gray-600 border-2 border-gray-300 dark:border-gray-500 rounded-lg flex items-center justify-center transition-all duration-300 ${problemStatus[problem.id] ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-green-500' : 'group-hover:border-blue-400'}">
+                                                    <i class="fas fa-check text-white text-sm ${problemStatus[problem.id] ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300"></i>
+                                                </div>
+                                            </label>
+                                            <span class="text-gray-800 dark:text-gray-200 font-medium transition-all duration-300 ${problemStatus[problem.id] ? 'line-through opacity-60' : 'group-hover:text-blue-600 dark:group-hover:text-blue-400'} flex-1">${problem.name}</span>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="flex space-x-2">
+                                                ${generateResourceLinks(problem)}
+                                            </div>
+                                            <span class="px-3 py-1 text-xs font-semibold rounded-full ${getDifficultyColor(problem.difficulty)} shadow-lg">
+                                                ${problem.difficulty}
+                                            </span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += sectionHtml;
+            });
+        }
+
+        // Toggle problem completion
+        function toggleProblem(problemId) {
+            problemStatus[problemId] = !problemStatus[problemId];
+            localStorage.setItem('dpProblemStatus', JSON.stringify(problemStatus));
+            updateStats();
+            // Re-render to update the strikethrough effect
+            const searchTerm = document.getElementById('searchInput').value;
+            if (searchTerm) {
+                searchProblems(searchTerm);
+            } else {
+                renderProblems();
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const completed = Object.values(problemStatus).filter(Boolean).length;
+            const total = allProblems.length;
+            const remaining = total - completed;
+            const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('remainingCount').textContent = remaining;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('progressPercentage').textContent = percentage + '%';
+            document.getElementById('progressText').textContent = `${completed} / ${total}`;
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        // Search problems
+        function searchProblems(searchTerm) {
+            const filtered = allProblems.filter(problem => 
+                problem.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                problem.difficulty.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                problem.section.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            renderProblems(filtered);
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTheme();
+            initializeProblems();
+            renderProblems();
+            updateStats();
+
+            // Dark mode toggle
+            document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.trim();
+                if (searchTerm) {
+                    searchProblems(searchTerm);
+                } else {
+                    renderProblems();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
