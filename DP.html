@@ -758,9 +758,9 @@
             if (problem.leetcode && problem.leetcode !== "-") {
                 linksHtml += `
                     <a href="${problem.leetcode}" target="_blank" 
-                       class="p-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                       class="p-2 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
                        title="LeetCode">
-                        <i class="fas fa-code text-sm"></i>
+                        <img src="https://tse2.mm.bing.net/th/id/OIP.cNJCBLV2Loe3Tqwu6sHTkAHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="LeetCode" class="w-8 h-8 rounded-xl transition-all duration-300 hover:rotate-12 hover:scale-110">
                     </a>
                 `;
             }
@@ -771,29 +771,7 @@
                     <a href="${problem.gfg}" target="_blank" 
                        class="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
                        title="GeeksforGeeks">
-                        <i class="fas fa-laptop-code text-sm"></i>
-                    </a>
-                `;
-            }
-            
-            // Editorial link
-            if (problem.editorial && problem.editorial !== "-") {
-                linksHtml += `
-                    <a href="${problem.editorial}" target="_blank" 
-                       class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
-                       title="Editorial">
-                        <i class="fas fa-book text-sm"></i>
-                    </a>
-                `;
-            }
-            
-            // YouTube link
-            if (problem.youtubeLink && problem.youtubeLink !== "-") {
-                linksHtml += `
-                    <a href="${problem.youtubeLink}" target="_blank" 
-                       class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
-                       title="YouTube Video">
-                        <i class="fab fa-youtube text-sm"></i>
+                        <img src="https://media.geeksforgeeks.org/wp-content/uploads/20220620060056/gfg.jpg" alt="GeeksforGeeks" class="w-5 h-5 rounded transition-all duration-300 hover:scale-125 hover:rotate-6">
                     </a>
                 `;
             }
